@@ -76,6 +76,54 @@ module Database
       self.class.attribute_names.include? attribute
     end
 
+    def initialize(attributes = {})
+      attributes.symbolize_keys!
+
+      raise_error_if_invalid_attribute!(attributes.keys)
+      # This defines the value even if it's not present in attributes
+      @attributes = {}
+
+      if attributes.length < 5 
+        Cohort.attribute_names.each do |name|
+          @attributes[name] = attributes[name]
+        end
+      else 
+        Student.attribute_names.each do |name|
+          @attributes[name] = attributes[name]
+        end
+      end 
+      @old_attributes = @attributes.dup
+    end
+
+  def save
+    if new_record?
+      results = insert!
+    else
+      results = update!
+    end
+
+    # When we save, remove changes between new and old attributes
+    @old_attributes = @attributes.dup
+
+    results
+  end
+
+  def new_record?
+    self[:id].nil?
+  end
+
+  def [](attribute)
+    raise_error_if_invalid_attribute!(attribute)
+
+    @attributes[attribute]
+  end
+
+  def []=(attribute, value)
+    raise_error_if_invalid_attribute!(attribute)
+
+    @attributes[attribute] = value
+  end
+
     private
     def self.prepare_value(value)
       case value
