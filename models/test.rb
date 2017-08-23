@@ -10,3 +10,5 @@ what.save
 cohort = Student.find(2)
 cohort[:first_name] = 'Sheng'
 cohort.save 
+
+#add comments
